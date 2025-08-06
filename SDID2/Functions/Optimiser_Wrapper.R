@@ -78,7 +78,7 @@ Optimiser_Wrapper <- function(treated_pre,
   
   # extract the best solution
   optim_result <- multi_optim_result[[n_starts+1]] # no here is just n_starts + 1
-  
+  optim_result$lambda_used = best_lambda
   
   return(optim_result)
 }

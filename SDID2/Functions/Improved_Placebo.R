@@ -1,6 +1,7 @@
 # source("Functions/Poisson_Functions.R")
 
-Improved_Placebo <- function(d, lambda_list){
+Improved_Placebo <- function(d, lambda_list, 
+                             starts_lambdas){
 
 # select staret dates
 start_dates <- as.integer(unique(d$start_date))
@@ -29,9 +30,10 @@ start_dates <- subset(start_dates, is.na(start_dates) == FALSE)
     start_date = numeric())
   
   
-  for (j in start_dates){
+  for (j in 1:nrow(starts_lambdas)){
   
-    start_date_here = j
+    start_date_here = starts_lambdas$starts[j]
+    lambda = starts_lambdas$lambdas[j]
   
   for (i in ctrl_units){
     

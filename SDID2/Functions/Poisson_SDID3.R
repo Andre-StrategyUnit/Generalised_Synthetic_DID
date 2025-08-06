@@ -101,7 +101,8 @@ Poisson_SDID3 <- function(
     poisson_sdid_att = obs - cf_est, 
     post_timepoints = length(vc_post), 
     pre_obs = sum(treated_pre,T), 
-    pre_vc = sum(vc_pre,T))
+    pre_vc = sum(vc_pre,T), 
+    units_lambda_used = optim_result$lambda_used)
   
   return(results)
 }

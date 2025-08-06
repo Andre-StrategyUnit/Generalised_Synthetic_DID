@@ -26,7 +26,8 @@ Multi_SDID_Poisson <- function(d, treated_list,
     poisson_sdid_att = numeric(), 
     post_timepoints = numeric(), 
     pre_obs = numeric(), 
-    pre_vc = numeric())
+    pre_vc = numeric(), 
+    units_lambda_used = numeric())
 
   treated_list <- treated_list
 
