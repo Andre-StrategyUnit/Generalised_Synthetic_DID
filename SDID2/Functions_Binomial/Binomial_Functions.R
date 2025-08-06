@@ -13,5 +13,8 @@ source("Functions_Binomial/JackKnife_Binomial_SDID.R")
 source("Functions_Binomial/Binomial_SDID_Inferential.R") 
 source("Functions_Binomial/Binomial_SDID3_VC.R") 
 source("Functions_Binomial/Multi_SDID_Binomial_VC.R") 
+source("Functions_Binomial/Impute_Zero_Trials.R")
+source("Functions_Binomial/Binomial_Permutations.R")
+source("Functions_Binomial/Improved_Placebo.R")
 
 

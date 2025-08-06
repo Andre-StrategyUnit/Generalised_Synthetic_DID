@@ -7,6 +7,9 @@ Multi_SDID_Binomial <- function(d, treated_list, n_starts){
 
   # tictoc::tic()
   
+  # single imputation for all of the cases with zero trials
+  d <- impute_dataset(d)
+  
   results <- tibble(
   cf.est = numeric(), 
   obs = numeric(), 

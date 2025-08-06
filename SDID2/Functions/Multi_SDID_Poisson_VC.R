@@ -13,7 +13,8 @@
 #     .default = 0
 #   ))
 
-Multi_SDID_Poisson_VC <- function(d, treated_list, n_starts) {
+Multi_SDID_Poisson_VC <- function(d, treated_list, n_starts, 
+                                  lambda_list = c(-3,-1,0, 1,3,5)) {
   
   all_preds <- list()
   
@@ -22,7 +23,8 @@ Multi_SDID_Poisson_VC <- function(d, treated_list, n_starts) {
     
     d3 <- RelevelPoisson(d = d2, treated_unit_id = unit_id)
     
-    preds <- Poisson_SDID3_VC(d = d3, n_starts = n_starts)
+    preds <- Poisson_SDID3_VC(d = d3, n_starts = n_starts, 
+                              lambda_list = lambda_list)
     
     all_preds[[as.character(unit_id)]] <- preds
   }
@@ -41,20 +43,25 @@ Multi_SDID_Poisson_VC <- function(d, treated_list, n_starts) {
     ungroup()
   
   tbl <- tibble(
+    #time = 1:length(summed_preds),
+    time = unique(d$time), 
     predicted_sum = summed_preds,
-    actual_sum = actuals$sum_poisson
+    actual_sum = actuals$sum_poisson, 
+    residuals = actual_sum - predicted_sum
   )
   
   # Return both predictions and actuals
   return(tbl)
 }
-
-
+# 
+# d <- Create_SC_Data(units_n = 50, 
+#                     treated_units = 2, 
+#                     impact_factor = 0)
+# 
 # Multi_SDID_Poisson_VC(d = d,
-#                    treated_list = c(1,2),
-#                    n_starts = 1) |>
-#   ggplot(mapping = aes(x = 1:50)) +
-#   geom_line(mapping = aes(y = predicted_sum),
-#             col = "blue") +
-#   geom_line(mapping = aes(y = actual_sum))
-
+#                     treated_list = c(1,2),
+#                     n_starts = 1) |>
+#    ggplot(mapping = aes(x = 1:50)) +
+#    geom_line(mapping = aes(y = predicted_sum),
+#              col = "blue") +
+#    geom_line(mapping = aes(y = actual_sum))

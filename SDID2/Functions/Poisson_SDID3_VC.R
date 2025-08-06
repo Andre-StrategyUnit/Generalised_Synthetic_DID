@@ -11,14 +11,15 @@ Poisson_SDID3_VC <- function(
     lower_lambda = -10, 
     upper_lambda = 20, 
     lambda_jump = 2, 
-    sum_to_one_tolerance = 0.01){
+    sum_to_one_tolerance = 0.01, 
+    lambda_list = c(-3,-1,0, 1,3,5)){
   
   # import data
   d <- d
   
   # minimal wrangling
   treated_unit_id <- 1
-  treated_time <- min(d$time[d$treated == 1])
+  treated_time <- min(subset(d$time, d$treated == 1))
   
   # Raw treated outcomes (counts)
   treated_pre <- Extract_Treated(d, treated_unit_id, treated_time)
@@ -39,7 +40,7 @@ Poisson_SDID3_VC <- function(
     treated_pre = treated_pre, 
     controls_pre = controls_pre, 
     n_starts = n_starts, 
-    silent = silent)
+    silent = silent, lambda_list = lambda_list)
   
   # extract VC pre/post
   vc_pre  <- Extract_VC_Pre_Poisson2(d, 

@@ -14,7 +14,8 @@
 #   ))
 
 Multi_SDID_Poisson <- function(d, treated_list, 
-                               n_starts){
+                               n_starts, 
+                               lambda_list = c(-3,-1,0, 1,3,5)){
 
   # tictoc::tic()
   
@@ -23,7 +24,9 @@ Multi_SDID_Poisson <- function(d, treated_list,
     obs = numeric(), 
     vc_post_avg = numeric(), 
     poisson_sdid_att = numeric(), 
-    post_timepoints = numeric())
+    post_timepoints = numeric(), 
+    pre_obs = numeric(), 
+    pre_vc = numeric())
 
   treated_list <- treated_list
 
@@ -34,7 +37,8 @@ Multi_SDID_Poisson <- function(d, treated_list,
     d3 <- RelevelPoisson(d = d2, 
                           treated_unit_id = treated_list[i])
     results[i, ] <- Poisson_SDID3(d = d3, 
-                                  n_starts = n_starts)
+                                  n_starts = n_starts, 
+                                  lambda_list = lambda_list)
     
   }
   # tictoc::toc()

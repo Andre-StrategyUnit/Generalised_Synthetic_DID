@@ -2,9 +2,10 @@ multi_start_nloptr <- function(
     n_starts = 10,
     controls_pre, treated_pre,
     sum_to_one_lambda = sum_to_one_lambda,
-    ridge_lambda = 0, 
+    ridge_lambda = ridge_lambda, 
     lb, ub,
     silent = FALSE) {
+
   
   results <- list()
   
@@ -23,12 +24,14 @@ multi_start_nloptr <- function(
         par = par,
         controls_pre = controls_pre,
         treated_pre = treated_pre,
-        sum_to_one_lambda = sum_to_one_lambda),
+        sum_to_one_lambda = sum_to_one_lambda, 
+        ridge_lambda = ridge_lambda),
       eval_grad_f = function(par) neg_loglik_poisson_grad(
         par = par,
         controls_pre = controls_pre,
         treated_pre = treated_pre,
-        sum_to_one_lambda = sum_to_one_lambda),
+        sum_to_one_lambda = sum_to_one_lambda, 
+        ridge_lambda = ridge_lambda),
       lb = lb,
       ub = ub,
       opts = list(

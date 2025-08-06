@@ -31,7 +31,7 @@ Binomial_SDID_Inferential <- function(full_results,
   p_value <- 2 * pt(-abs(t_stat), df = df)
   
   # CIs
-  alpha <- 0.1
+  alpha <- alpha
   t_crit <- qt(1 - alpha / 2, df = df)
   
   ci_lower <- central_estimate - t_crit * se_jack
@@ -47,5 +47,46 @@ Binomial_SDID_Inferential <- function(full_results,
     sum_units = length(unique(full_results$treated_unit)))
   
   return(results3)
+  
+}
+
+
+Binomial_SDID_Inferential.permutation <- function(full_results, 
+                                                 perm_results, 
+                                                 alpha){
+  
+  central_estimate <- full_results |>
+    mutate(obs_success = round(obs* treated_post_trials.sum, 0) , 
+           cf_success = round(cf.est * treated_post_trials.sum, 0)) |>
+    summarise(obs_success = sum(obs_success), 
+              cf_success = sum(cf_success), 
+              trials = sum(treated_post_trials.sum)) |>
+    ungroup() |>
+    mutate(obs_odds = obs_success/(trials-obs_success), 
+           cf_odds = cf_success/(trials-cf_success), 
+           scaled_effect = log(obs_odds) - log(cf_odds)) 
+  
+  true_effect <- central_estimate$scaled_effect
+  perm_effects <- as.vector(perm_results$scaled_effect)
+  
+  se <- sqrt(mean(perm_effects^2))
+  n_permutations <- length(perm_effects)
+  t_crit <- qt(1- (alpha/2), df = n_permutations - 1)
+  ci.lwr <- true_effect - (t_crit * se)
+  ci.upr <- true_effect + (t_crit * se)
+  
+  tbl <- central_estimate |>
+    mutate(
+      scaled_ci.lwr = ci.lwr, 
+      scaled_ci.upr = ci.upr,
+      cf_odds_ci.lwr = obs_odds/exp(scaled_ci.lwr),
+      cf_odds_ci.upr = obs_odds/exp(scaled_ci.upr),
+      cf_outcome_ci.lwr = (trials/(1+cf_odds_ci.lwr))*cf_odds_ci.lwr, 
+      cf_outcome_ci.upr = (trials/(1+cf_odds_ci.upr))*cf_odds_ci.upr,
+      exact_p =  (sum(abs(perm_effects) >= abs(true_effect)))/(length(perm_effects)), 
+      adj_exact_p = (1 + sum(abs(perm_effects) >= abs(true_effect)))/(length(perm_effects)+1)
+  )
+  
+  return(tbl)
   
 }

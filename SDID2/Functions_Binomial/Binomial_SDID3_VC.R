@@ -14,7 +14,7 @@ Binomial_SDID3_VC <- function(
 ) {
   # data wrangling as before
   treated_unit_id       <- 1
-  treated_time          <- min(d$time[d$treated == 1])
+  treated_time          <- min(subset(d$time, d$treated == 1))
   treated_pre           <- Extract_Treated.bn(d, 
                                               treated_unit_id = treated_unit_id, 
                                               treated_time = treated_time)

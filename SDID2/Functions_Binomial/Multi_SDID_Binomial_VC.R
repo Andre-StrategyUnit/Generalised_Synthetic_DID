@@ -13,18 +13,22 @@
 #     .default = 0
 #   ))
 
+# d <- Create_SC_Data_Binomial(treated_units = 2)
 Multi_SDID_Binomial_VC <- function(d, treated_list, n_starts) {
   
   all_preds <- list()
   
-  for (unit_id in treated_list) {
-    d2 <- subset(d, unit_id %notin% treated_list | unit_id == unit_id)
+  # single imputation for all of the cases with zero trials
+  d <- impute_dataset(d)
+  
+  for (i in treated_list) {
+    d2 <- subset(d, unit_id %notin% treated_list | unit_id == i)
     
-    d3 <- RelevelBinomial(d = d2, treated_unit_id = unit_id)
+    d3 <- RelevelBinomial(d = d2, treated_unit_id = i)
     
     preds <- Binomial_SDID3_VC(d = d3, n_starts = n_starts)
     
-    all_preds[[as.character(unit_id)]] <- preds
+    all_preds[[as.character(i)]] <- preds
   }
   
   # Combine into a matrix (each column is a unit's prediction vector)
@@ -42,6 +46,7 @@ Multi_SDID_Binomial_VC <- function(d, treated_list, n_starts) {
     ungroup()
   
   tbl <- tibble(
+    time = 1:length(summed_preds),
     predicted_sum = summed_preds,
     actual_sum = actuals$sum_binomial,
     trials_sum = actuals$sum_trials

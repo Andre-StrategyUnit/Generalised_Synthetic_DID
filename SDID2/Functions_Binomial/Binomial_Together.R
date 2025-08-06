@@ -8,8 +8,8 @@ source("Functions_Binomial/Binomial_Functions.R") # create dataset
 # simulate data ----
 d <- Create_SC_Data_Binomial(treated_units = 2,
                              time_n = 50,
-                             units_n = 35,
-                             trials_lambda = 100, 
+                             units_n = 15,
+                             trials_lambda = 5, 
                              impact_factor = 0)
 
 d <- d |>
