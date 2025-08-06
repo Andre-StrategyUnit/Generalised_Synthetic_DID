@@ -3,7 +3,7 @@
 Optimiser_Wrapper <- function(treated_pre, 
                               controls_pre, 
                               n_starts, silent, 
-                              lambda_list = c(-3,-1,0, 1,3,5)) {
+                              lambda_list = c(-3,-1,0, 1,3,5, 7)) {
   
   
   nll_values <- numeric()
