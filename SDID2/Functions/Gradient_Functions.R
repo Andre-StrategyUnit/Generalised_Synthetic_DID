@@ -2,7 +2,7 @@
 neg_loglik_poisson_local <- function(par, 
                                      controls_pre, treated_pre, 
                                      sum_to_one_lambda = 0,
-                                     ridge_lambda = 0) {
+                                     ridge_lambda = 0.1) {
   intercept <- par[1]
   weights   <- par[-1]
   
@@ -16,9 +16,12 @@ neg_loglik_poisson_local <- function(par,
   # Poisson negative log-likelihood
   nll <- -sum(dpois(x = treated_pre, lambda = mu, log = TRUE))
   
+  # variance of control units, in poisson var = mu
+  variances <- colMeans(controls_pre)
+  
   # Penalties
   sum1_penalty  <- sum_to_one_lambda * (sum(weights) - 1)^2
-  ridge_penalty <- ridge_lambda * sum(weights^2)
+  ridge_penalty <- ridge_lambda * sum((weights^2)/sqrt(variances))
   
   return(nll + sum1_penalty + ridge_penalty)
 }
@@ -44,10 +47,14 @@ neg_loglik_poisson_grad <- function(par,
   grad_intercept <- sum(residual)
   grad_weights   <- t(log_controls) %*% residual
   
+  # variance of control units, in poisson var = mu
+  variances <- colMeans(controls_pre)
+  
   # Penalty gradients
+  penalty_scaling <- 1 / sqrt(variances)
   grad_weights <- grad_weights +
     2 * sum_to_one_lambda * (sum(weights) - 1) +
-    2 * ridge_lambda * weights
+    2 * ridge_lambda * weights * penalty_scaling
   
   return(c(grad_intercept, as.vector(grad_weights)))
 }
