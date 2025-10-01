@@ -1,7 +1,6 @@
 # source("Functions/Poisson_Functions.R")
 
-Improved_Placebo <- function(d, lambda_list, 
-                             starts_lambdas){
+Improved_Placebo <- function(d, starts_lambdas){
 
 # select staret dates
 start_dates <- as.integer(unique(d$start_date))
@@ -27,11 +26,13 @@ start_dates <- subset(start_dates, is.na(start_dates) == FALSE)
     pre_obs = numeric(), 
     pre_vc = numeric(),
     unit = numeric(), 
-    start_date = numeric())
+    start_date = numeric(),
+    equiv_unit = numeric() )
   
   
   for (j in 1:nrow(starts_lambdas)){
   
+    equiv_unit = starts_lambdas$equiv_unit[j]
     start_date_here = starts_lambdas$starts[j]
     lambda = starts_lambdas$lambdas[j]
   
@@ -53,9 +54,12 @@ start_dates <- subset(start_dates, is.na(start_dates) == FALSE)
                                no = 0))
     
     # run analysis
-    output <- Poisson_SDID3(d = d3, n_starts = n_starts, lambda_list = lambda_list) |> 
+    output <- Poisson_SDID3(d = d3, 
+                            n_starts = n_starts, 
+                            lambda_list = c(lambda)) |> 
       mutate(unit = i, 
-             start_date = start_date_here)
+             start_date = start_date_here, 
+             equiv_unit = equiv_unit)
 
     
     list_results <-  rbind(list_results, output)

@@ -3,6 +3,7 @@
 
 Create_SC_Data <- function(
     units_n = 80, 
+    good_ctrls = 40, 
     scaling_factor = 5, 
     time_n = 50, 
     treated_units = 1,
@@ -27,14 +28,14 @@ Create_SC_Data <- function(
   # create factor weightings
   factor_weightings <- tibble(
     unit_id = 1:units_n, 
-    factor1.wts = c(runif(n = 4, 
+    factor1.wts = c(runif(n = good_ctrls, 
                           min = 0.7, max = 1), 
-                    runif(n = (units_n-4), 
+                    runif(n = (units_n-good_ctrls), 
                           min = 0, max = 0.3)),
     factor2.wts = c(0,
-                    runif(n = 3, 
+                    runif(n = good_ctrls-1, 
                           min = -0.1, max = 0.1),
-                    runif(n = (units_n-4), 
+                    runif(n = (units_n-good_ctrls), 
                           min = 0.8, max = 1.2)))
   
   # create original sample outcome dataset
