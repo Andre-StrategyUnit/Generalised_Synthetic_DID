@@ -17,9 +17,7 @@ multi_start_nloptr <- function(
     
     # identify the starting weights
     # target weights
-    inverse_means <- (1)/colMeans(controls_pre)
-    target_weights <- inverse_means * (1/sum(inverse_means))
-    initial_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
+    initial_weights <- Target_Weights(controls_pre)
     
     initial_par <- c(initial_intercept, initial_weights)
     

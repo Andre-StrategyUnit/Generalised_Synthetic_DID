@@ -1,7 +1,6 @@
 # --- Define loss function (no log transform, raw counts) ----
 neg_loglik_poisson_local <- function(par, 
                                      controls_pre, treated_pre, 
-                                     target_weights,
                                      sum_to_one_lambda = 0,
                                      ridge_lambda = 0.1) {
   intercept <- par[1]
@@ -18,9 +17,7 @@ neg_loglik_poisson_local <- function(par,
   nll <- -sum(dpois(x = treated_pre, lambda = mu, log = TRUE))
   
   # target weights
-  inverse_means <- (1)/colMeans(controls_pre)
-  target_weights <- inverse_means * (1/sum(inverse_means))
-  target_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
+  target_weights <- Target_Weights(controls_pre)
   
   # Penalties
   sum1_penalty  <- sum_to_one_lambda * (sum(weights) - 1)^2
@@ -51,9 +48,7 @@ neg_loglik_poisson_grad <- function(par,
   grad_weights   <- t(log_controls) %*% residual
   
   # target weights
-  inverse_means <- (1)/colMeans(controls_pre)
-  target_weights <- inverse_means * (1/sum(inverse_means))
-  target_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
+  target_weights <- Target_Weights(controls_pre)
   
   # Penalty gradients
   grad_weights <- grad_weights +

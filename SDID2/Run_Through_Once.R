@@ -21,6 +21,7 @@ source("Functions/Extract_Pre_Match.R") # extract data to assess pre period matc
 source("Functions/Sum_To_One_Lambda.R") # try few lambdas to ensure time weights sum to and give performance of them
 source("Functions/Post_Intervention_Mu.R") # calculate the post intervention mean using the time weights
 source("Functions/Athey_Method.R")
+source("Functions/Target_Weights.R")
 
 # --- Create dataset ----
 
@@ -28,8 +29,8 @@ d <- Create_SC_Data(time_n = 100,
                     treated_time = 80, 
                     units_n = 100, 
                     good_ctrls = 100, 
-                    scaling_factor = 10, 
-                    unit_fe_sd = 4, 
+                    scaling_factor = 100, 
+                    unit_fe_sd = 10, 
                     impact_factor = 0)
 
 treated_unit_id <- 1
@@ -61,11 +62,11 @@ optim_result <- Optimiser_Wrapper(
   silent = TRUE)
 
 # matches using the DID target weights 
-inverse_means <- (1)/colMeans(controls_pre)
-target_weights <- inverse_means * (1/sum(inverse_means))
-target_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
+target_weights <- Target_Weights(controls_pre)
 optim_result2 <- NULL
 optim_result2$solution <- c(0, target_weights)
+plot(target_weights, colMeans(controls_pre))
+
 
 # --- Plot pre match ----
 
