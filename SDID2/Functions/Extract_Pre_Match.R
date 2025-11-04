@@ -12,14 +12,18 @@ Extract_Pre_Match <- function(treated_pre, controls_pre,
   
   # --- Predict synthetic control ----
   
-  synthetic_linear_pred <- intercept_opt + as.vector(controls_pre %*% optimal_weights)
-  synthetic_counts <- exp(synthetic_linear_pred)
+  # Clamp and transform
+  log_controls <- log(pmin(pmax(controls_pre, 1e-10), 1e+10))  # T x J
+  linear_pred  <- intercept_opt + as.vector(log_controls %*% optimal_weights)
+  
+  mu <- exp(linear_pred)
+  mu <- pmin(pmax(mu, 1e-8), 1e8)  # clamp predictions
   
   # --- Plot fit ----
   
   pre_match <- tibble(
     time = 1:length(treated_pre),
-    synthetic_counts = synthetic_counts,
+    synthetic_counts = mu,
     treated_counts = treated_pre)
   
   return(pre_match)

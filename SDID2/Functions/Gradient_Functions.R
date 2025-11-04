@@ -1,6 +1,7 @@
 # --- Define loss function (no log transform, raw counts) ----
 neg_loglik_poisson_local <- function(par, 
                                      controls_pre, treated_pre, 
+                                     target_weights,
                                      sum_to_one_lambda = 0,
                                      ridge_lambda = 0.1) {
   intercept <- par[1]
@@ -16,12 +17,14 @@ neg_loglik_poisson_local <- function(par,
   # Poisson negative log-likelihood
   nll <- -sum(dpois(x = treated_pre, lambda = mu, log = TRUE))
   
-  # variance of control units, in poisson var = mu
-  variances <- colMeans(controls_pre)
+  # target weights
+  inverse_means <- (1)/colMeans(controls_pre)
+  target_weights <- inverse_means * (1/sum(inverse_means))
+  target_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
   
   # Penalties
   sum1_penalty  <- sum_to_one_lambda * (sum(weights) - 1)^2
-  ridge_penalty <- ridge_lambda * sum((weights^2)/sqrt(variances))
+  ridge_penalty <- ridge_lambda * sum((weights-target_weights)^2)
   
   return(nll + sum1_penalty + ridge_penalty)
 }
@@ -41,20 +44,21 @@ neg_loglik_poisson_grad <- function(par,
   mu           <- exp(eta)
   mu           <- pmin(pmax(mu, 1e-8), 1e8)
   
-  residual <- mu - treated_pre  # (∂NLL/∂μ) × (∂μ/∂η)
+  residual <- mu - treated_pre  # derivative of -loglik wrt eta for Poisson
   
   # Gradients
   grad_intercept <- sum(residual)
   grad_weights   <- t(log_controls) %*% residual
   
-  # variance of control units, in poisson var = mu
-  variances <- colMeans(controls_pre)
+  # target weights
+  inverse_means <- (1)/colMeans(controls_pre)
+  target_weights <- inverse_means * (1/sum(inverse_means))
+  target_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
   
   # Penalty gradients
-  penalty_scaling <- 1 / sqrt(variances)
   grad_weights <- grad_weights +
     2 * sum_to_one_lambda * (sum(weights) - 1) +
-    2 * ridge_lambda * weights * penalty_scaling
+    2 * ridge_lambda * (weights-target_weights)
   
   return(c(grad_intercept, as.vector(grad_weights)))
 }

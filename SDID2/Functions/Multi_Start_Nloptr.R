@@ -12,9 +12,14 @@ multi_start_nloptr <- function(
   for (i in 1:n_starts) {
     if (!silent) cat("Multi-start iteration", i, "\n")
     
-    initial_intercept <- runif(1, min = -1, max = 1)
-    initial_weights <- runif(ncol(controls_pre))
-    initial_weights <- initial_weights / sum(initial_weights)  # normalize
+    # identify the starting intercept
+    initial_intercept <- 0
+    
+    # identify the starting weights
+    # target weights
+    inverse_means <- (1)/colMeans(controls_pre)
+    target_weights <- inverse_means * (1/sum(inverse_means))
+    initial_weights <- target_weights * (mean(treated_pre)/mean(controls_pre))
     
     initial_par <- c(initial_intercept, initial_weights)
     
