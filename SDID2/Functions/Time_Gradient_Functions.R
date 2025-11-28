@@ -1,3 +1,5 @@
+# version 1 ----
+
 # loss function for sdid on time weights
 
 neg_ll_sdid_time <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 0) {
@@ -22,7 +24,7 @@ neg_ll_sdid_time <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 0) {
 }
 
 
-# gradient of loss function for sdid on time weights ----
+# gradient of loss function for sdid on time weights 
 
 neg_ll_sdid_time_grad <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 0) {
   mu_pred <- sum(par * y_pre)
@@ -39,6 +41,9 @@ neg_ll_sdid_time_grad <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 0
   
   return(grad_final)
 }
+
+# version 2 ----
+
 neg_ll_sdid_time2 <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 0) {
   intercept <- par[1]
   weights   <- par[-1]
@@ -49,7 +54,7 @@ neg_ll_sdid_time2 <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 0) {
   # Linear predictor and predicted mean
   eta     <- intercept + sum(weights * log_y_pre)
   mu_pred <- exp(eta)
-  mu_pred <- pmin(pmax(mu_pred, 1e-2), 1e8)
+  mu_pred <- pmin(pmax(mu_pred, 1e-6), 1e8)
   
   # Poisson negative log-likelihood
   nll <- -(y_post_mean * log(mu_pred) - mu_pred - lgamma(y_post_mean + 1))
@@ -82,6 +87,40 @@ neg_ll_sdid_time_grad2 <- function(par, y_pre, y_post_mean, sum_to_one_lambda = 
   
   # Penalty gradient
   grad_weights <- grad_weights + 2 * sum_to_one_lambda * (sum(weights) - 1)
+  
+  return(c(grad_intercept, grad_weights))
+}
+
+# version 3 ----
+
+neg_ll_sdid_time3 <- function(par, 
+                              y_pre, 
+                              y_post_mean) {
+  intercept <- par[1]
+  weights   <- par[-1]
+  
+  # Linear predictor and predicted mean
+  mu_pred     <- intercept + sum(weights * y_pre)
+  mu_pred <- pmin(pmax(mu_pred, 1e-6), 1e8)
+  
+  # negative log-likelihood
+  total   <- (mu_pred - y_post_mean)^2
+  
+  return(total)
+}
+
+neg_ll_sdid_time_grad3 <- function(par, 
+                                   y_pre, y_post_mean) {
+  
+  intercept <- par[1]
+  weights   <- par[-1]
+  mu_pred <- intercept + sum(weights * y_pre)
+  diff <- mu_pred - y_post_mean
+  
+  grad_intercept <- 2 * diff
+  grad_weights   <- 2 * diff * y_pre
+  
+  # grad_weights <- grad_weights + 2 * (sum(weights) - 1)
   
   return(c(grad_intercept, grad_weights))
 }

@@ -13,7 +13,8 @@ multi_start_nloptr <- function(
     if (!silent) cat("Multi-start iteration", i, "\n")
     
     # identify the starting intercept
-    initial_intercept <- 0
+    initial_intercept <- Target_Intercept(controls_pre = controls_pre, 
+                                          treated_pre = treated_pre)
     
     # identify the starting weights
     # target weights

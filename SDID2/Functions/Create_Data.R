@@ -17,11 +17,11 @@ Create_SC_Data <- function(
   latent_data <- tibble(
     time = 1:time_n, 
     factor1 = arima.sim(model = list(order = c(2, 1, 2), 
-                                     ar = c(+0.9, -0.05), 
+                                     ar = c(+0.9, -0.1), 
                                      ma = c(-0.5, +0.5)), 
                         n = time_n)[1:time_n], 
     factor2 = arima.sim(model = list(order = c(2, 1, 2), 
-                                     ar = c(-0.6, +0.2), 
+                                     ar = c(+0.9, -0.1), 
                                      ma = c(-0.5, +0.5)), 
                         n = time_n)[1:time_n])
   
