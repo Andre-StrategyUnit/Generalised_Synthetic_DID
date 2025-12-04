@@ -25,9 +25,11 @@ source("Functions/Target_Weights.R")
 
 # --- Create dataset ----
 
+n = n+1
+set.seed(12)
 good_ctrls.v <- 40
-scale_fctr.v <- 2.5
-impact_fctr.v <- 1
+scale_fctr.v <- 7.5
+impact_fctr.v <- -1
 
 d <- Create_SC_Data(time_n = 100,
                     treated_time = 80, 
@@ -35,20 +37,34 @@ d <- Create_SC_Data(time_n = 100,
                     units_n = 40, 
                     good_ctrls = good_ctrls.v, 
                     scaling_factor = scale_fctr.v, 
-                    unit_fe_sd = 2, 
+                    unit_fe_sd = 7.5, 
                     impact_factor = impact_fctr.v)
 
 treated_unit_id <- 1
 treated_time <- min(d$time[d$treated == 1])
 
-ggplot(data = d, 
-       mapping = aes(x = time, 
-                     y = actual.poisson, 
-                     group = unit_id, 
-                     col = unit_id > good_ctrls.v )) + 
-  geom_line() + 
+d |> 
+  mutate(treatment_status = ifelse(test = treat_group == 0, 
+                                   yes = "Control", 
+                                   no = "Treated")) |> 
+  ggplot() + 
+  # geom_line(mapping = aes(x = time,
+  #                         y = cf.poisson,
+  #                         group = unit_id),
+  #           col = "green") +
+  geom_line(mapping = aes(x = time, 
+                          y = (actual.poisson), 
+                          group = unit_id, 
+                          col = unit_id > 10
+                          )) + 
   theme_minimal() + 
-  facet_grid(treat_group~.)
+  facet_grid(treatment_status~.) + 
+  geom_vline(xintercept = treated_time-1) + 
+  ggtitle("Count of an example outcome over time") + 
+  ylab("Count") + 
+  xlab("Time") + 
+  theme(legend.position="none")  + scale_color_manual(values = c("blue", "red"))
+  
 
 # --- Extract pre-period data ----
 
@@ -142,15 +158,15 @@ post_match2b <- post_match2 |>
 # join together
 post_match3 <- left_join(post_match, post_match2b)
 
-# ggplot(data = post_match3,
-#        mapping = aes(x = time)) +
-#   geom_line(aes(y = (did_est2)), color = "darkgreen") +
-#   geom_line(aes(y = (synthetic_counts)), color = "blue") +
-#   geom_line(aes(y = (treated_counts)), color = "red") +
-#   theme_minimal() +
-#   labs(y = "Counts",
-#        title = "Post Period Synthetic Control",
-#        subtitle = "Treated vs Unregularized Synthetic vs DID")
+ggplot(data = post_match3,
+       mapping = aes(x = time)) +
+  geom_line(aes(y = (did_est2)), color = "darkgreen") +
+  geom_line(aes(y = (synthetic_counts)), color = "blue") +
+  geom_line(aes(y = (treated_counts)), color = "red") +
+  theme_minimal() +
+  labs(y = "Counts",
+       title = "Post Period Synthetic Control",
+       subtitle = "Treated vs Unregularized Synthetic vs DID")
 
 # --- Predict the post intervention average ----
 

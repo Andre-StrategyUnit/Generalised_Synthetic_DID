@@ -7,13 +7,13 @@ a <- Sys.time()
 # Simulate data ----
 source("Functions/Poisson_Functions.R")
 treated_units = c(1:2)
-d <- Create_SC_Data(units_n = 22,
-                    good_ctrls = 12,
-                    time_n = 25, 
-                    treated_time = 25,
+d <- Create_SC_Data(units_n = 50,
+                    good_ctrls = 5,
+                    time_n = 100, 
+                    treated_time = 80,
                     treated_units = max(treated_units), 
-                    scaling_factor = 5, 
-                    impact_factor = 0)
+                    scaling_factor = 3, 
+                    impact_factor = 0.2)
 
 # Run a single analysis ----
 tictoc::tic()
@@ -33,7 +33,8 @@ central_overview <- Aggregate_Central(output)
 tictoc::tic()
 placebos <- Improved_Placebo2(
   d = d, 
-  main_result = output)
+  main_result = output, 
+  cum_contr = 0.9)
 tictoc::toc()
 
 # view(placebos)
@@ -55,8 +56,8 @@ tictoc::toc()
 inferential_results <- SDID_Inferential(
   central_overview = central_overview, 
   aggregate_placebos = output2,
-  p_direction = "two_sided", 
-  quantiles = c(0.25, 0.975)
+  p_direction = "higher", 
+  quantiles = c(0.025, 0.975)
 )
 
 inferential_results
